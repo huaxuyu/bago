@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+<meta content="Get started optimizing LC gradient with a Jupyter Notebook." lang="en" name="description" xml:lang="en" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>With A Jupyter Notebook &mdash; BAGO 0.0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="With A Windows Software" href="getting-started-with-software.html" />
+    <link rel="prev" title="Backgrounds" href="backgrounds.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            BAGO
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get Started</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="backgrounds.html">Backgrounds</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">With A Jupyter Notebook</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#set-up-jupyter-notebook">Set up Jupyter Notebook</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#quick-start">Quick start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#external-resources">External resources</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="getting-started-with-software.html">With A Windows Software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="encodings.html">Encodings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="applications.html">Applications</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">BAGO Functions</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="MSdata-obj.html">MS data (object)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readMSdata.html">Read MS data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="computeSecondGradient.html">Generate second gradient</a></li>
+<li class="toctree-l1"><a class="reference internal" href="findTopSignals.html">Find top signals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="computeSepEff.html">Compute Separation Efficiency</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getBPCData.html">Get BPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotBPC.html">Plot BPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dotProd.html">Spectral similarity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numberUniqueMS2.html">Get unique MS2 spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getUniqueMz.html">Get unique m/z</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getMobilePhasePct.html">Get mobile phase percentage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="outputConfig.html">Output gradient</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gpModel-obj.html">Gaussian process regression (object)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fit.html">Gaussian process regression fitting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="genSearchSpace.html">Generate search space</a></li>
+<li class="toctree-l1"><a class="reference internal" href="computeNextGradient.html">Compute next gradient</a></li>
+<li class="toctree-l1"><a class="reference internal" href="updateModel.html">Update model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acq-func.html">Acquisition functions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">BAGO</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">With A Jupyter Notebook</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/getting-started-with-ipynb.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="with-a-jupyter-notebook">
+<h1>With A Jupyter Notebook<a class="headerlink" href="#with-a-jupyter-notebook" title="Permalink to this heading">¶</a></h1>
+<p>A Jupyter Notebook is provided to help you get started with the LC gradient optimization.
+The notebook is available on GitHub and can be run locally.</p>
+<p>If you want to learn more about how to use Jupyter Notebook, check out <a class="reference external" href="http://jupyter.org/">Jupyter Notebook.</a>.</p>
+<section id="set-up-jupyter-notebook">
+<h2>Set up Jupyter Notebook<a class="headerlink" href="#set-up-jupyter-notebook" title="Permalink to this heading">¶</a></h2>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>If you already set up Jupyter Notebook, you can skip to the next section.</p>
+</div>
+<p>Download and install Python 3.8 or later from <a class="reference external" href="https://www.python.org/downloads/">python.org</a>.
+<code class="docutils literal notranslate"><span class="pre">pip</span></code> should be included with Python 3.8 or later. Make sure that the <code class="docutils literal notranslate"><span class="pre">pip</span></code> command is
+available from the command line by running:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pip<span class="w"> </span>--version
+</pre></div>
+</div>
+<p>If you have an older version of Python, you can install <code class="docutils literal notranslate"><span class="pre">pip</span></code> by following the instructions at <a class="reference external" href="https://pip.pypa.io/en/stable/installation/">pip installation</a>.</p>
+<p>For users new to Python, we recommend using Visual Studio Code to run the notebook.
+Download and install Visual Studio Code from <a class="reference external" href="https://code.visualstudio.com/">code.visualstudio.com</a>.</p>
+<p>In Visual Studio Code, open the Command Palette (Ctrl+Shift+P) and type “Python: Select Interpreter”.
+Select the Python 3.8 or later interpreter that you installed in the previous step.</p>
+<p>Install Jupyter extensions for Visual Studio Code from the Visual Studio Code Marketplace.</p>
+</section>
+<section id="quick-start">
+<h2>Quick start<a class="headerlink" href="#quick-start" title="Permalink to this heading">¶</a></h2>
+<p>Install the <code class="docutils literal notranslate"><span class="pre">bago</span></code> package from command line:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>bago
+</pre></div>
+</div>
+<p>Download the Jupyter Notebook from <a class="reference external" href="https://github.com/Waddlessss/BAGO">GitHub</a>.</p>
+<p>Follow the instructions in the notebook to get started.</p>
+</section>
+<section id="external-resources">
+<h2>External resources<a class="headerlink" href="#external-resources" title="Permalink to this heading">¶</a></h2>
+<p>Here are some external resources to help you learn more about Jupyter Notebook:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docs.jupyter.org/en/latest/">Jupyter documentation</a></p></li>
+<li><p><a class="reference external" href="https://github.com/Waddlessss/BAGO/issues">Getting help with using BAGO from a Jupyter Notebook</a></p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="backgrounds.html" class="btn btn-neutral float-left" title="Backgrounds" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="getting-started-with-software.html" class="btn btn-neutral float-right" title="With A Windows Software" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Huaxu Yu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

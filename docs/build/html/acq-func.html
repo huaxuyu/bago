@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Acquisition functions &mdash; BAGO 0.0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Update model" href="updateModel.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            BAGO
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="backgrounds.html">Backgrounds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting-started-with-ipynb.html">With A Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting-started-with-software.html">With A Windows Software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="encodings.html">Encodings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="applications.html">Applications</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">BAGO Functions</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="MSdata-obj.html">MS data (object)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readMSdata.html">Read MS data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="computeSecondGradient.html">Generate second gradient</a></li>
+<li class="toctree-l1"><a class="reference internal" href="findTopSignals.html">Find top signals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="computeSepEff.html">Compute Separation Efficiency</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getBPCData.html">Get BPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotBPC.html">Plot BPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dotProd.html">Spectral similarity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numberUniqueMS2.html">Get unique MS2 spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getUniqueMz.html">Get unique m/z</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getMobilePhasePct.html">Get mobile phase percentage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="outputConfig.html">Output gradient</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gpModel-obj.html">Gaussian process regression (object)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fit.html">Gaussian process regression fitting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="genSearchSpace.html">Generate search space</a></li>
+<li class="toctree-l1"><a class="reference internal" href="computeNextGradient.html">Compute next gradient</a></li>
+<li class="toctree-l1"><a class="reference internal" href="updateModel.html">Update model</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Acquisition functions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">BAGO</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Acquisition functions</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/acq-func.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="acquisition-functions">
+<h1>Acquisition functions<a class="headerlink" href="#acquisition-functions" title="Permalink to this heading">¶</a></h1>
+<p>Bayesian Optimization uses acquisition function to select the next point to evaluate by real experiment. The goal of the acquisition function is to balance exploration and exploitation in the search space.</p>
+<p>Exploration refers to the need to find a global optimum by searching different regions of the search space,
+while exploitation refers to the need to refine the search in regions where a high-performing solution is
+likely to be found.
+The acquisition function is used to decide where to sample next based on the model of the underlying function and the observed data.</p>
+<p>There are six acquisition functions available in BAGO, including:</p>
+<p><strong>Expected Improvement (EI)</strong>: Selects the next point where the expected improvement over the current best solution is maximized.</p>
+<p><strong>Probability of Improvement (PI)</strong>: Selects the next point where the improvement over the current best solution is most probable.</p>
+<p><strong>Pure exploration</strong>: Selects the next point where the predict variance is maximized.</p>
+<p><strong>Pure exploitation</strong>: Selects the next point where the predict mean is maximized.</p>
+<p><strong>Epsilon-greedy algorithm (Epsilon-greedy)</strong>: using a parameter called “epsilon” to determine the proportion of exploratory actions.</p>
+<p><strong>Upper Confidence Bound (UCB)</strong>: Selects the next point where the balance between exploration and exploitation is optimized using a measure of uncertainty in the model.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In BAGO, Expected Improvement is used by default.</p>
+</div>
+<p>Read more about acquisition functions:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://arxiv.org/abs/1012.2599">A Tutorial on Bayesian Optimization of Expensive Cost Functions, with Application to Active User Modeling and Hierarchical Reinforcement Learning</a></p></li>
+</ul>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="updateModel.html" class="btn btn-neutral float-left" title="Update model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Huaxu Yu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
