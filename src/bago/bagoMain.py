@@ -168,6 +168,9 @@ def parameterInit(parameters):
         rawDataHelper.calGradPoints(parameters)
     if parameters["rtRange"] is None:
         parameters["rtRange"] = (parameters["timePoints"][0], parameters["timePoints"][-1])
+    if parameters["isChangable"] is False:
+        parameters["isChangable"] = np.ones(len(parameters["timePoints"]), dtype=bool)
+        parameters["isChangable"][np.array([0,1,-1])] = False
 
 
 def saveParameters(parameters):
@@ -188,7 +191,7 @@ def saveParameters(parameters):
 parametersTemplate = {
     'timePoints': np.array([], dtype=float),
     'rtRange': None,
-    'isChangable': np.array([], dtype=bool),
+    'isChangable': False,
     'gradRange': (5.0, 95.0),
     'gradStep': 5,
     'gradPoints': None,
@@ -199,6 +202,8 @@ parametersTemplate = {
     'rawDatadir': "RawData",
     'methodDir': "GradientMethod",
     'sNum': 500,
+    'rtTol': 1.0,
+    'intTol': 1000,
     'precsMzTol': 0.01,
     'prodMzTol': 0.02,
     'gradIdx': 0,
