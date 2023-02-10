@@ -1,4 +1,4 @@
-# BAGO: Bayesian Optimization of Liquid Chromatographic Elution Gradient
+# BAGO
 
 [![PyPI Downloads](https://img.shields.io/pypi/dm/bago.svg?label=PyPI%20downloads)](
 https://pypi.org/project/bago/)
