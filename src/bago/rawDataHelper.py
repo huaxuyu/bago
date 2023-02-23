@@ -495,7 +495,7 @@ class ms2Spectrum:
         print("Precursor m/z: " + str(np.round(self.precsMz, decimals=4)))
         print("rt: " + str(np.round(self.rt, decimals=2)) + " min.")
         if showMS2:
-            print('prodMz: ' + str(np.round(self.prodMz, decimals=0)))
+            print('prodMz: ' + str(np.round(self.prodMz, decimals=4)))
             print("Intensity: " + str(np.round(self.prodInt, decimals=0)))
 
 
@@ -595,7 +595,7 @@ def drawEICAround(ms1Data, mz, rt, outDir, pltName="TBD.png",
         return [rtSeq, intSeq]
 
 
-def dotProd(ms2A, ms2B, mzTol=0.02):
+def dotProd(ms2A, ms2B, mzTol=0.02, rep='simple'):
     """
     Function to calculate the MS2 similarity by dot product.
     Return 2.0 if MS2 does not exist.
@@ -603,8 +603,7 @@ def dotProd(ms2A, ms2B, mzTol=0.02):
     Parameters
     ----------------------------------------------------------
     ms2A: ms2Spectrum object
-        The first MS2. For reverse dot product, ms2A is the 
-        reference spectrum.
+        The first MS2.
     ms2B: ms2Spectrum object
         The second MS2.
     mzTol: float
@@ -640,6 +639,7 @@ def dotProd(ms2A, ms2B, mzTol=0.02):
         minDiff = diff.min()
 
     unmatched = int2[mz2 != -1]
+    matchNum = len(int2[mz2 == -1])
     if len(unmatched) != 0:
         t = np.row_stack((np.zeros(len(unmatched)), unmatched))
         intTable = np.column_stack((intTable, t))
@@ -647,7 +647,10 @@ def dotProd(ms2A, ms2B, mzTol=0.02):
     dp = np.inner(intTable[0], intTable[1]) / (
             np.inner(intTable[0], intTable[0]) * np.inner(intTable[1], intTable[1])) ** 0.5
 
-    return dp
+    if rep == 'simple':
+        return dp
+    elif rep == 'full':
+        return {'dotprod': dp, 'matchNumber': len(matchNum)}
 
 
 def numberUniqueMS2(d, rtTol=1.0, precsMzTol=0.01, dpTol=0.95):

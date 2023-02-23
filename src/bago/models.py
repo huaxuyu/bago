@@ -5,7 +5,7 @@ from sklearn.gaussian_process.kernels import Matern
 from scipy.stats import norm
 from itertools import combinations_with_replacement
 from sklearn.preprocessing import StandardScaler
-from rawDataHelper import getMobilePhasePct
+from . import rawDataHelper
 from math import pi
 
 class gpModel:
@@ -79,7 +79,7 @@ class gpModel:
         for g in combinations_with_replacement(parameters['gradPoints'], fNumber):
             temp[parameters["isChangable"]] = g
             # Calculate the mobile phase percentage
-            pct = getMobilePhasePct(temp, parameters['timePoints'])
+            pct = rawDataHelper.getMobilePhasePct(temp, parameters['timePoints'])
             # Check if the mobile phase percentage is in the range
             if parameters['mpBound'][0] < pct < parameters['mpBound'][1]:
                 gradients.append(g)
