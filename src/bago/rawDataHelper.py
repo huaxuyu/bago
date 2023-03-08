@@ -608,6 +608,10 @@ def dotProd(ms2A, ms2B, mzTol=0.02, rep='simple'):
         The second MS2.
     mzTol: float
         Tolerance of the m/z difference.
+    rep: str
+        Representation of the MS2 spectrum. 'simple' for only
+        reporting the dot product. 'full' for reporting the
+        dot product and number of matched peaks.
     """
 
     # Check if MS2 exist in both spectra
@@ -650,10 +654,10 @@ def dotProd(ms2A, ms2B, mzTol=0.02, rep='simple'):
     if rep == 'simple':
         return dp
     elif rep == 'full':
-        return {'dotprod': dp, 'matchNumber': len(matchNum)}
+        return {'dotprod': dp, 'matchNumber': matchNum}
 
 
-def numberUniqueMS2(d, rtTol=1.0, precsMzTol=0.01, dpTol=0.95):
+def getUniqueMS2(d, rtTol=1.0, precsMzTol=0.01, dpTol=0.95, returnNum=False):
     """
     Function to calculate the number of unique MS2.
 
@@ -667,11 +671,14 @@ def numberUniqueMS2(d, rtTol=1.0, precsMzTol=0.01, dpTol=0.95):
         Tolerance of precursor m/z, in Da.
     dpTol: float
         Tolerance of dot product.
+    returnNum: boolean
+        True to return the number of unique MS2;
+        False to return the list of unique MS2.
 
     Returns
     ----------------------------------------------------------
     List:
-        Unique MS2 spectra.
+        Unique MS2 spectra (when returnNum is False).
     """
 
     uniqueMS2 = []
@@ -716,7 +723,10 @@ def numberUniqueMS2(d, rtTol=1.0, precsMzTol=0.01, dpTol=0.95):
 
     uniqueMS2 += temp
 
-    return uniqueMS2
+    if returnNum:
+        return len(uniqueMS2)
+    else:
+        return uniqueMS2
 
 
 def getUniqueMz(d, precsMzTol=0.01):

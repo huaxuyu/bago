@@ -137,6 +137,9 @@ def runEvaluation(exp, parameters):
     # Find the key of the data with the highest separation efficiency
     maxSepEffKey = list(exp.keys())[np.argmax(sepEffs)]
 
+    # Find the number of unique MS/MS spectra
+    parameters['uniqueMS2'] = [exp[k].getUniqueMS2(returnNum=True) for k in exp.keys()]
+
     if maxSepEffKey in parameters["grads"].keys():
         # Find the gradient setting that gives the highest separation efficiency
         maxSepEffGrad = parameters["grads"][maxSepEffKey]
@@ -144,8 +147,8 @@ def runEvaluation(exp, parameters):
         # Print the gradient setting that gives the highest separation efficiency
         print("The gradient setting that gives the highest separation efficiency is: {}.".format(maxSepEffGrad))
 
-        # Create a data frame of two columns: gradient name and separation efficiency
-        df = pd.DataFrame({"Gradient": exp.keys(), "Separation efficiency": sepEffs})
+        # Create a data frame of two columns: gradient name, separation efficiency, and number of unique MS/MS spectra
+        df = pd.DataFrame({"Gradient": exp.keys(), "Separation efficiency": sepEffs, "Unique MS/MS": parameters['uniqueMS2']})
 
         # Save the data frame to a csv file
         df.to_csv("Evaluation.csv", index=False)
