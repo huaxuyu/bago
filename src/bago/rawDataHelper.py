@@ -330,7 +330,7 @@ class MSData:
         self.intensityBPC = self.intensityBPC / np.max(self.intensityBPC) * 100
 
 
-    def plotBPC(self, pltName):
+    def plotBPC(self, pltName, fontsize=20, dpi=300, figsize=(6, 4), aspect=2.0):
         """
         Function to plot BPC.
 
@@ -338,13 +338,28 @@ class MSData:
         ----------------------------------------------------------
         pltName: str
             Name of the plot.
+        fontsize: int
+            Font size of the plot.
+        dpi: int
+            Resolution of the plot.
+        figsize: tuple
+            Size of the plot.
+        aspect: float
+            Aspect ratio of the plot.
         """
 
+        # check if BPC data is ready
+        if self.rtBPC is None:
+            self.getBPCData()
+
+        plt.figure(figsize=figsize, dpi=dpi)
         plt.plot(self.rtBPC, self.intensityBPC, color="black", linewidth=1)
-        plt.xlabel("Retention time, min", fontname='Arial', fontsize=15, labelpad=5)
-        plt.ylabel("Intensity, %", fontname='Arial', fontsize=15, labelpad=5)
-        plt.xticks(fontname='Arial', fontsize=10)
-        plt.yticks(fontname='Arial', fontsize=10)
+        # set aspect ratio
+        plt.gca().set_aspect(aspect)
+        plt.xlabel("Retention time, min", fontname='Arial', fontsize=fontsize, labelpad=2)
+        plt.ylabel("Intensity, %", fontname='Arial', fontsize=fontsize, labelpad=2)
+        plt.xticks(fontname='Arial', fontsize=fontsize)
+        plt.yticks(fontname='Arial', fontsize=fontsize)
         plt.savefig(fname=pltName, bbox_inches='tight')
         plt.close()
 
@@ -840,7 +855,7 @@ def outputConfig(name, timePoints, gradient):
     df.to_csv(fname, index=False)
 
 
-def outputGradientFig(name, gradient, timePoints):
+def outputGradientFig(name, gradient, timePoints, fontsize=20, dpi=600, figsize=(6, 4), **kwargs):
     """
     Function to output the gradient figure in png.
 
@@ -852,13 +867,20 @@ def outputGradientFig(name, gradient, timePoints):
         Sequence of mobile phase percentages at all time points.
     timePoints: numpy array
         Sequence of time points.
+    fontsize: int
+        Font size of the figure.
+    dpi: int
+        Resolution of the figure.
+    figsize: tuple
+        Size of the figure.
     """
 
+    plt.figure(figsize=figsize, dpi=dpi)
     plt.plot(timePoints, gradient, color="black", linewidth=1)
-    plt.xlabel("Retention time, min", fontname='Arial', fontsize=10, labelpad=2)
-    plt.ylabel("Mobile phase, %", fontname='Arial', fontsize=10, labelpad=2)
-    plt.xticks(fontname='Arial', fontsize=10)
-    plt.yticks(np.arange(0, 120, 20), fontname='Arial', fontsize=10)
+    plt.xlabel("Retention time, min", fontname='Arial', fontsize=fontsize, labelpad=5)
+    plt.ylabel("Mobile phase, %", fontname='Arial', fontsize=fontsize, labelpad=5)
+    plt.xticks(fontname='Arial', fontsize=fontsize)
+    plt.yticks(np.arange(0, 120, 20), fontname='Arial', fontsize=fontsize)
     plt.savefig(fname=name, bbox_inches='tight')
     plt.close()
 

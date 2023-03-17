@@ -175,6 +175,10 @@ def parameterInit(parameters):
     if parameters["isChangable"] is False:
         parameters["isChangable"] = np.ones(len(parameters["timePoints"]), dtype=bool)
         parameters["isChangable"][np.array([0,1,-1])] = False
+    
+    else:
+        parameters["isChangable"] = np.ones(len(parameters["timePoints"]), dtype=bool)
+        parameters["isChangable"][np.array([0,-1])] = False
 
 
 def saveParameters(parameters):
