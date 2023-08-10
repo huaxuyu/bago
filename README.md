@@ -2,7 +2,7 @@
 
 [![PyPI Downloads](https://img.shields.io/pypi/dm/bago.svg?label=PyPI%20downloads)](https://pypi.org/project/bago/)
 [![Generic badge](https://img.shields.io/badge/BAGO-ver_1.0-<COLOR>.svg)](https://github.com/Waddlessss/bago/)
-![Maintainer](https://img.shields.io/badge/maintainer-Huaxu Yu-blue)
+![Maintainer](https://img.shields.io/badge/maintainer-Huaxu_Yu-blue)
 
 BAGO is a Bayesian optimization strategy for LC gradient optimization for MS-based small molecule analysis. Check out our [YouTube video](https://www.youtube.com/watch?v=Ne_Y0vZ0WKI)
 
