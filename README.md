@@ -33,13 +33,21 @@ The software is designed to be simple, clear, and intuitive. BAGO has a graphica
 
 # *bago* Python package
 
-*bago* is a Python package for the proposed Bayesian Optimization framework of elution gradient optimization.
-- **Documentation:** https://bago.readthedocs.io/en/latest/
-- **Source code:** https://github.com/Waddlessss/bago
-- **Bug reports:** https://github.com/Waddlessss/bago/issues
+*bago* is a Python package for supporting the proposed Bayesian Optimization framework of LC gradient optimization.
 
+*bago* covers the proposed features needed in creating a gradient optimization workflow based on Bayesian optimization. Depending on your use case, *bago* can be used in different ways:
 
+* Perform LC gradient optimization in programmtic envrionment
+* Model LC-MS experiment to evaluate compound separation performance
+* Optimize the default pipeline to adpat a special gradient optimization scenario
+* Further development of the proposed Bayesian optimization strategy
+* Extend the corrent stategy to other LC-based analytical platforms
 
+# Accessibility
 
+* **Documentation:** https://bago.readthedocs.io/en/latest/
+* **Source code:** https://github.com/Waddlessss/bago
+* **Bug reports:** https://github.com/Waddlessss/bago/issues
 
-## Please cite BAGO
+# Please cite
+
