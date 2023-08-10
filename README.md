@@ -25,7 +25,7 @@ BAGO Windows software is freely available from the [GitHub release page](https:/
 
 The software is designed to be simple, clear, and intuitive. BAGO has a graphical user interface as shown below.
 
-<img src = "https://github.com/Waddlessss/bago/tree/master/pictures/BAGO_software_main.jpg" width = "850" >
+<img src = "/pictures/BAGO_software_main.jpg" width = "850" >
 
 
 # *bago* Python package
