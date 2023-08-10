@@ -1,4 +1,4 @@
 With A Windows Software
 -----------------------
 
-Documentations to be constructed.
+The Windows software and tutorial are provided on 
