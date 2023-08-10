@@ -3,12 +3,7 @@
 [![PyPI Downloads](https://img.shields.io/pypi/dm/bago.svg?label=PyPI%20downloads)](
 https://pypi.org/project/bago/)
 
-
-BAGO is a Python package for Bayesian Optimization of Liquid Chromatographic Elution Gradient.
-
-- **Documentation:** https://bago.readthedocs.io/en/latest/
-- **Source code:** https://github.com/Waddlessss/bago
-- **Bug reports:** https://github.com/Waddlessss/bago/issues
+BAGO is a Bayesian optimization strategy for elution gradient optimization in LC-MS experiment. 
 
 BAGO enables:
 
@@ -25,6 +20,23 @@ Broader discovery of chemical space
     Wonder how BAGO can help you? Read more about [applications](https://bago.readthedocs.io/en/latest/applications.html).
 
 # BAGO Windows Software
+
+BAGO Windows software is freely available from the [GitHub release page](https://github.com/Waddlessss/bago/releases). A user manual in .pdf format is included with the software.
+
+The software is designed to be simple, clear, and intuitive. BAGO has a graphical user interface as shown below.
+
 <img src = "https://github.com/Waddlessss/bago/tree/master/pictures/BAGO_software_main.jpg" width = "850" >
+
+
+# *bago* Python package
+
+*bago* is a Python package for the proposed Bayesian Optimization framework of elution gradient optimization.
+- **Documentation:** https://bago.readthedocs.io/en/latest/
+- **Source code:** https://github.com/Waddlessss/bago
+- **Bug reports:** https://github.com/Waddlessss/bago/issues
+
+
+
+
 
 ## Please cite BAGO
