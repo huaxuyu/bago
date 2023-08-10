@@ -5,6 +5,8 @@ https://pypi.org/project/bago/)
 
 BAGO is a Bayesian optimization strategy for LC gradient optimization for MS-based small molecule analysis.
 
+Check out our [YouTube video](https://www.youtube.com/watch?v=Ne_Y0vZ0WKI)
+
 ### BAGO enables
 
 **Highly efficient gradient optimization**
