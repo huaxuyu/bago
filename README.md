@@ -22,6 +22,7 @@ BAGO is a Bayesian optimization strategy for LC gradient optimization for MS-bas
 * Expand your discovery of chemical space by improving identification and quantification.
 * Wonder how BAGO can help you? Read more about [applications](https://bago.readthedocs.io/en/latest/applications.html).
 
+
 # BAGO Windows Software
 
 BAGO Windows software is freely available from the [GitHub release page](https://github.com/Waddlessss/bago/releases). A user manual in .pdf format is included with the software.
@@ -43,11 +44,13 @@ The software is designed to be simple, clear, and intuitive. BAGO has a graphica
 * Further development of the proposed Bayesian optimization strategy
 * Extend the corrent stategy to other LC-based analytical platforms
 
+
 # Accessibility
 
 * **Documentation:** https://bago.readthedocs.io/en/latest/
 * **Source code:** https://github.com/Waddlessss/bago
 * **Bug reports:** https://github.com/Waddlessss/bago/issues
+
 
 # Please cite
 
