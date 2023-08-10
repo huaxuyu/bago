@@ -25,6 +25,6 @@ Broader discovery of chemical space
     Wonder how BAGO can help you? Read more about [applications](https://bago.readthedocs.io/en/latest/applications.html).
 
 # BAGO Windows Software
-
+![alt text](https://github.com/Waddlessss/bago/pictures/BAGO_software_main.jpg)
 
 ## Please cite BAGO
