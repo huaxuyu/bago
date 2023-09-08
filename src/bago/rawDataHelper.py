@@ -1,4 +1,4 @@
-from pyopenms import MSExperiment, MzMLFile, MzXMLFile
+from pyteomics import mzml, mzxml
 import numpy as np
 import os
 import pandas as pd
@@ -17,8 +17,6 @@ class MSData:
         ----------------------------------------------------------
         """
 
-        # Raw LCMS data
-        self.rawData = None
         # MS1 data
         self.ms1Data = None
         # MS2 data
@@ -33,49 +31,45 @@ class MSData:
         self.sepEff = None
         
 
-    def readRawData(self, fileName):
+    def readRawData(self, fileName, rtRange=None):
         """
-        Function to read the raw LCMS data to MSExperiment object 
-        (supported by pyopenms package).
+        Function to read raw LC-MS data to MS1 and MS2 (if available)
+        (supported by pyteomics package).
 
         Parameters
         ----------------------------------------------------------
         fileName: str
-            File name to read the raw LCMS data, which can be either mzML
-            or mzXML (default).
+            File name of raw LC-MS data (mzML or mzXML).
+        rtRange: list
+            A list with two numeric values specifying the range of
+            retention time that the MS1 scans are extracted, in minute.
         """
 
         if os.path.isfile(fileName):
-            self.rawData = MSExperiment()
             # get extension from file name
             ext = os.path.splitext(fileName)[1]
 
-            if ext.lower() == ".mzxml":
-                MzXMLFile().load(fileName, self.rawData)
-            elif ext.lower() == ".mzml":
-                MzMLFile().load(fileName, self.rawData)
+            if ext.lower() == ".mzml":
+                with mzml.MzML(fileName) as reader:
+                    self.extractscan(reader, rtRange=rtRange)
+            elif ext.lower() == ".mzxml":
+                with mzxml.MzXML(fileName) as reader:
+                    self.extractscan(reader, rtRange=rtRange)
             else:
-                print("Unsupported raw LCMS data format.")
+                print("Unsupported raw LC-MS data format.")
         else:
             print("File does not exist.")
 
 
-    def clearRawData(self):
-        """
-        Function to remove the raw LCMS data.
-        ----------------------------------------------------------
-        """
-
-        self.rawData = None
-
-
-    def extractMS1(self, rtRange=None):
+    def extractscan(self, spectra, rtRange=None):
         """
         Function to extract all MS1 scans and convert them to 
         ms1Spectrum objects.
 
         Parameters
         ----------------------------------------------------------
+        spectra: pyteomics object
+            An iteratable object that contains all MS1 and MS2 scans.
         rtRange: list
             A list with two numeric values specifying the range of 
             retention time that the MS1 scans are extracted, in minute.
@@ -87,52 +81,25 @@ class MSData:
         
         # Extract MS1 scans
         self.ms1Data = []
-        for spec in self.rawData:
-            # Check if the retention time is within the range
-            if rtRange[0] * 60 < spec.getRT() < rtRange[1] * 60:
-                # Check if the scan is MS1 and the scan is not empty
-                if spec.getMSLevel() == 1 and len(spec.get_peaks()[0]) != 0:
-                    # Get m/z, intensity and retention time
-                    mz = spec.get_peaks()[0]
-                    intensity = spec.get_peaks()[1]
-                    rt = spec.getRT() / 60
-                    # Create a ms1Spectrum object
-                    temp = ms1Spectrum(mz=mz, intensity=intensity, rt=rt)
-                    self.ms1Data.append(temp)
-
-
-    def extractMS2(self, rtRange=None):
-        """
-        Function to extract all MS2 scans and convert them to 
-        ms2Spectrum objects.
-
-        Parameters
-        ----------------------------------------------------------
-        rtRange: list
-            A list with two numeric values specifying the range of
-            retention time that the MS2 scans are extracted, in minute.
-        """
-
-        # If rtRange is not specified, extract all MS2 scans
-        if rtRange is None:
-            rtRange = (0, np.inf)
-
-        # Extract MS2 scans
         self.ms2Data = []
-        for spec in self.rawData:
+
+        # Iterate through all scans
+        for spec in spectra:
             # Check if the retention time is within the range
-            if rtRange[0] * 60 < spec.getRT() < rtRange[1] * 60:
-                # Check if the scan is MS2 and the scan is not empty
-                if spec.getMSLevel() == 2 and len(spec.get_peaks()[0]) != 0:
-                    # Get precursor m/z and retention time
-                    precsMz = spec.getPrecursors()[0].getMZ()
-                    rt = spec.getRT() / 60
-                    # Get product m/z and intensity
-                    prodMz = spec.get_peaks()[0]
-                    prodInt = spec.get_peaks()[1]
-                    # Create a ms2Spectrum object
-                    temp = ms2Spectrum(precsMz=precsMz, rt=rt, prodMz=prodMz, prodInt=prodInt)
+            rt = spec['scanList']['scan'][0]['scan start time'] / 60
+            if rtRange[0] < rt < rtRange[1]:
+                # Check if the scan is MS1 and the scan is not empty
+                if spec['ms level'] == 1 and len(spec['m/z array']) != 0:
+                    # Create a ms1Spectrum object
+                    temp = ms1Spectrum(mz=spec['m/z array'], intensity=spec['intensity array'], rt=rt)
+                    self.ms1Data.append(temp)
+                elif spec['ms level'] == 2 and len(spec['m/z array']) != 0:
+                    precsMz = spec['precursorList']['precursor'][0]['selectedIonList']['selectedIon'][0]['selected ion m/z']
+                    temp = ms2Spectrum(precsMz=precsMz, rt=rt, prodMz=spec['m/z array'], prodInt=spec['intensity array'])
                     self.ms2Data.append(temp)
+        # print the number of extracted ms1 and ms2 scans
+        print("Number of extracted MS1 scans: " + str(len(self.ms1Data)))
+        print("Number of extracted MS2 scans: " + str(len(self.ms2Data)))
 
 
     def findTopSignals(self, parameters):
@@ -304,12 +271,12 @@ class MSData:
 
     def computeSepEff(self, rtRange):
         """
-        Function to compute the separation efficiency using top signals.
+        Function to compute the global separation index using top signals.
 
         Parameters
         ----------------------------------------------------------
         rtRange: list
-            Retention time range for the separation efficiency calculation.
+            Retention time range for the global separation index calculation.
         """
 
         rtSeq = np.array([f.rt for f in self.topSignals])
@@ -887,7 +854,8 @@ def outputGradientFig(name, gradient, timePoints, fontsize=20, dpi=600, figsize=
 
 def sepEfficiency(rtSeq, rtRange):
     """
-    Calculate the separation efficiency using a series of retention times.
+    Calculate the global separation index (previous name: separation efficiency)
+    using a series of retention times.
 
     Parameters
     ----------------------------------------------------------
@@ -899,7 +867,7 @@ def sepEfficiency(rtSeq, rtRange):
     Returns
     ----------------------------------------------------------
     float:
-        Separation efficiency.
+        Global separation index.
     """
 
     rtRange = np.array(rtRange, dtype=float)

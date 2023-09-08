@@ -43,7 +43,9 @@ def modelInitilization(parameters, exp):
     print("Second gradient: {}.".format(parameters["grads"]["Init_2"]))
 
     for k in parameters["grads"].keys():
-        exp[k] = None
+        # if k is not a key in exp
+        if k not in exp.keys():
+            exp[k] = None
     
     return mainModel
 
@@ -99,18 +101,12 @@ def readNewMSData(exp, parameters):
         print("Processing file: " + fn)
         fntemp = parameters['rawDatadir']+ "/" + fn
         tempFile = rawDataHelper.MSData()
-        tempFile.readRawData(fileName=fntemp)
-        # Extract MS1 and MS2 data
-        tempFile.extractMS1(rtRange=parameters["rtRange"])
-        tempFile.extractMS2(rtRange=parameters["rtRange"])
-        print(str(len(tempFile.ms1Data)) + " MS1 spectra found.")
-        print(str(len(tempFile.ms2Data)) + " MS2 spectra found.")
+        tempFile.readRawData(fileName=fntemp, rtRange=parameters["rtRange"])
         tempFile.findTopSignals(parameters=parameters)
-
         tempFile.computeSepEff(rtRange=parameters["rtRange"])
         
-        # Print separation efficiency with 4 decimal places
-        print("Separation efficiency: {:.4f}".format(tempFile.sepEff))
+        # Print global separation index with 4 decimal places
+        print("Global separation index: {:.4f}".format(tempFile.sepEff))
         exp[fn.split(".")[0]] = tempFile
         print("----------------------------------------------------------------")
 
@@ -130,28 +126,28 @@ def runEvaluation(exp, parameters):
     parameterInit(parameters)
     readNewMSData(exp, parameters)
 
-    # Obtain the separation efficiency of each data
+    # Obtain the global separation index of each data
     sepEffs = [exp[k].sepEff for k in exp.keys()]
     parameters["sepEffs"] = {k: v for k, v in zip(exp.keys(), sepEffs)}
 
-    # Find the key of the data with the highest separation efficiency
+    # Find the key of the data with the highest global separation index
     maxSepEffKey = list(exp.keys())[np.argmax(sepEffs)]
 
     # Find the number of unique MS/MS spectra
     parameters['uniqueMS2'] = [rawDataHelper.getUniqueMS2(d=exp[k], returnNum=True) for k in exp.keys()]
 
     if maxSepEffKey in parameters["grads"].keys():
-        # Find the gradient setting that gives the highest separation efficiency
+        # Find the gradient setting that gives the highest global separation index
         maxSepEffGrad = parameters["grads"][maxSepEffKey]
 
-        # Print the gradient setting that gives the highest separation efficiency
-        print("The gradient setting that gives the highest separation efficiency is: {}.".format(maxSepEffGrad))
+        # Print the gradient setting that gives the highest global separation index
+        print("The gradient setting that gives the highest global separation index is: {}.".format(maxSepEffGrad))
 
     else:
-        print("The gradient setting that gives the highest separation efficiency is: {}.".format(maxSepEffKey))
+        print("The gradient setting that gives the highest global separation index is: {}.".format(maxSepEffKey))
 
-    # Create a data frame of two columns: gradient name, separation efficiency, and number of unique MS/MS spectra
-    df = pd.DataFrame({"Gradient": exp.keys(), "Separation efficiency": sepEffs, "Unique MS/MS": parameters['uniqueMS2']})
+    # Create a data frame of two columns: gradient name, global separation index, and number of unique MS/MS spectra
+    df = pd.DataFrame({"Gradient": exp.keys(), "Global separation index": sepEffs, "Unique MS/MS": parameters['uniqueMS2']})
 
     # Save the data frame to a csv file
     df.to_csv("Evaluation.csv", index=False)
@@ -172,16 +168,18 @@ def parameterInit(parameters):
         rawDataHelper.calGradPoints(parameters)
     if parameters["rtRange"] is None:
         parameters["rtRange"] = (parameters["timePoints"][0], parameters["timePoints"][-1])
-    if parameters["isChangable"] is False:
-        parameters["isChangable"] = np.ones(len(parameters["timePoints"]), dtype=bool)
-        parameters["isChangable"][np.array([0,1,-1])] = False
-    
-    else:
-        parameters["isChangable"] = np.ones(len(parameters["timePoints"]), dtype=bool)
-        parameters["isChangable"][np.array([0,-1])] = False
+    # if parameters["isChangable"] is not a numpy array
+    if not isinstance(parameters["isChangable"], np.ndarray):
+        if parameters["isChangable"] is False:
+            parameters["isChangable"] = np.ones(len(parameters["timePoints"]), dtype=bool)
+            parameters["isChangable"][np.array([0,1,-1])] = False
+        
+        else:
+            parameters["isChangable"] = np.ones(len(parameters["timePoints"]), dtype=bool)
+            parameters["isChangable"][np.array([0,-1])] = False
 
 
-def saveParameters(parameters):
+def saveParameters(parameters, fileName="parameters"):
     '''
     This function is used to save the project using pickle.
 
@@ -189,10 +187,13 @@ def saveParameters(parameters):
     ----------------------------------------------------------
     parameters: dict
         Global parameters.
+    fileName: str
+        The name of the file to save the parameters.
     '''
 
     # Save the parameters
-    with open("parameters.pkl", "wb") as f:
+    fileName = fileName + ".pkl"
+    with open(fileName, "wb") as f:
         pickle.dump(parameters, f)
 
 
