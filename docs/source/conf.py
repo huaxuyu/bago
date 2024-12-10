@@ -11,7 +11,7 @@ import sphinx_rtd_theme
 project = 'BAGO'
 copyright = '2023, Huaxu Yu'
 author = 'Huaxu Yu'
-release = '0.0.1'
+release = '1.0.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
