@@ -1,9 +1,11 @@
-from . import rawDataHelper
-from . import models
+# imports
 import os
 import numpy as np
 import pandas as pd
 import pickle
+
+from . import rawDataHelper
+from . import models
 
 
 def modelInitilization(parameters, exp):
@@ -14,6 +16,8 @@ def modelInitilization(parameters, exp):
     ----------------------------------------------------------
     parameters: dict
         The parameters in dictionary format.
+    exp: dict
+        The experiment dictionary: file_name -> MSData object
     '''
 
     parameterInit(parameters)
@@ -28,7 +32,7 @@ def modelInitilization(parameters, exp):
 
     # BAGO needs two gradients to initiate the model
     # The first gradient is specified by the user
-    # Prepare the second gradient if not specified
+    # Generate the second gradient if not specified
     if len(parameters["grads"].keys()) == 1:
         print("Only one gradient is specified, the second gradient will be generated to initiate BAGO.")
         parameters["grads"]["Init_2"] = rawDataHelper.computeSecondGradient(parameters, mainModel)

@@ -1,12 +1,14 @@
-# Model
+# imports
 import numpy as np
+from scipy.stats import norm
+from math import pi
+from itertools import combinations_with_replacement
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import Matern
-from scipy.stats import norm
-from itertools import combinations_with_replacement
 from sklearn.preprocessing import StandardScaler
+
 from . import rawDataHelper
-from math import pi
+
 
 class gpModel:
     """

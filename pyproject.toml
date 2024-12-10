@@ -1,22 +1,23 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "bago"
-version = "0.0.27"
+version = "1.0.0"
 authors = [
   { name="Huaxu", email="yhxchem@outlook.com" },
 ]
 maintainers = [
   { name="Huaxu", email="yhxchem@outlook.com" },
 ]
-description = "LC gradient optimization and evaluation"
+description = "Fully automated LC gradient optimization of optimal compound separation in nontargeted metabolomics"
 readme = "README.md"
 requires-python = ">=3.8"
+license = { text = "CC BY-NC 4.0" }
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
+    "License :: Other/Proprietary License",
     "Operating System :: OS Independent",
 ]
 dependencies = [
@@ -27,4 +28,4 @@ dependencies = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/Waddlessss/BAGO"
+"Homepage" = "https://github.com/huaxuyu/BAGO"

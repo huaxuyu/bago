@@ -1,8 +1,9 @@
-from pyteomics import mzml, mzxml
+# imports
 import numpy as np
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
+from pyteomics import mzml, mzxml
 
 
 class MSData:
@@ -12,10 +13,6 @@ class MSData:
     """
 
     def __init__(self):
-        """
-        Function to initiate MSData.
-        ----------------------------------------------------------
-        """
 
         # MS1 data
         self.ms1Data = None
@@ -37,7 +34,7 @@ class MSData:
         (supported by pyteomics package).
 
         Parameters
-        ----------------------------------------------------------
+        ----------
         fileName: str
             File name of raw LC-MS data (mzML or mzXML).
         rtRange: list
@@ -107,7 +104,7 @@ class MSData:
         Function to find the top signals in the raw LCMS data.
 
         Parameters
-        ----------------------------------------------------------
+        ----------
         parameters: dict
             A dictionary containing the parameters for finding the top
             signals.
@@ -124,7 +121,7 @@ class MSData:
         This function defines self.topSignals to store the selected.
         
         Parameters
-        ----------------------------------------------------------
+        ----------
         parameters: dict
             A dictionary containing the parameters for finding the top
             signals.
@@ -189,7 +186,7 @@ class MSData:
         A simple function to remove the top signals with poor peak shapes.
 
         Parameters
-        ----------------------------------------------------------
+        ----------
         precsMzTol: float
             Tolerance of the precursor m/z difference.
         rtTol: float
@@ -235,7 +232,7 @@ class MSData:
         Function to remove the isotope from top signals.
 
         Parameters
-        ----------------------------------------------------------
+        ----------
         precsMzTol: float
             Tolerance of the precursor m/z difference.
         rtTol: float
