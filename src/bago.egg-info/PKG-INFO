@@ -1,9 +1,9 @@
-Metadata-Version: 2.1
+Metadata-Version: 2.4
 Name: bago
-Version: 1.0.0
-Summary: Fully automated LC gradient optimization of optimal compound separation in nontargeted metabolomics
-Author-email: Huaxu <yhxchem@outlook.com>
-Maintainer-email: Huaxu <yhxchem@outlook.com>
+Version: 1.0.1
+Summary: Optimizing liquid chromatographic gradients for best compound separation in metabolomics
+Author-email: Huaxu Yu <yhxchem@outlook.com>
+Maintainer-email: Huaxu Yu <yhxchem@outlook.com>
 License: CC BY-NC 4.0
 Project-URL: Homepage, https://github.com/huaxuyu/BAGO
 Classifier: Programming Language :: Python :: 3
@@ -16,6 +16,8 @@ Requires-Dist: numpy>=1.19.5
 Requires-Dist: pandas>=1.2.4
 Requires-Dist: scikit-learn>=1.0.2
 Requires-Dist: scipy>=1.7.1
+Requires-Dist: masscube>=1.2.5
+Dynamic: license-file
 
 # BAGO
 

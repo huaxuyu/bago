@@ -3,11 +3,12 @@ import numpy as np
 from scipy.stats import norm
 from math import pi
 from itertools import combinations_with_replacement
+
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import Matern
 from sklearn.preprocessing import StandardScaler
 
-from . import rawDataHelper
+from .raw_data_utils import cal_mobile_phase_ratio
 
 
 class gpModel:
@@ -27,43 +28,29 @@ class gpModel:
                 2.0 * Matern(nu=1.5)
         )
 
-        # Initialize the Gaussian process regression model. 
-        # Pass an int for reproducible results across multiple function calls.
         self.gpr = GaussianProcessRegressor(kernel=self.kernel)
+        
+        self.gradient_arrs = None   # search space (mobile phase pct only at tunable time points)
+        self.scaler = None          # StandardScaler object for scaling the search space
+        self.scaledX = None         # search space after scaling
+        self.total_ratios = None    # total mobile phase ratios
+        self.start_pos = None       # start position of the tunable gradient percentage
 
-        # Search space after scaling.
-        self.scaledX = None
-        # Mobile phase percentages of the search space.
-        self.gradientPct = None
-        # Training data.
-        self.trainX = None
-        self.trainy = None
-        # Scaler for the search space.
-        self.scaler = None
-        # Search space before scaling.
-        self.gridX = None
+        self.trainX = None          # training data, X
+        self.trainy = None          # training data, y   
 
 
-    def fit(self, X, y):
+    def transform_and_fit(self):
         """
         Function to fit the data to Gaussian process regression model.
-
-        Parameters
-        ----------------------------------------------------------
-        X: numpy.ndarray
-            Training data, X
-        y: numpy array
-            Training data, y.
         """
 
-        self.trainX = X
-        self.trainy = y
-        self.gpr.fit(self.scaler.transform(X), y)
+        self.gpr.fit(self.scaler.transform(self.trainX[:, self.start_pos:-1]), self.trainy)
 
 
-    def genSearchSpace(self, parameters):
+    def generate_search_space(self, parameters):
         """
-        Function to generate search space.
+        Generate a search space with all reasonable gradient programs.
 
         Parameters
         ----------------------------------------------------------
@@ -71,37 +58,50 @@ class gpModel:
             Dictionary of parameters.
         """
 
-        # Calculate the feature number
-        fNumber = np.count_nonzero(parameters["isChangable"])
+        if parameters.fix_time2_pct:
+            num = len(parameters.time_arr) - 3
+        else:
+            num = len(parameters.time_arr) - 2
 
         # Generate the search space
         gradients = []
-        temp = np.copy(parameters['grads']['Init_1'])
-        gradientPct = []
-        for g in combinations_with_replacement(parameters['gradPoints'], fNumber):
-            temp[parameters["isChangable"]] = g
-            # Calculate the mobile phase percentage
-            pct = rawDataHelper.getMobilePhasePct(temp, parameters['timePoints'])
-            # Check if the mobile phase percentage is in the range
-            if parameters['mpBound'][0] < pct < parameters['mpBound'][1]:
-                gradients.append(g)
-                gradientPct.append(pct)
-        self.gridX = np.array(gradients)
-        self.gradientPct = np.array(gradientPct)
+
+        for g in combinations_with_replacement(parameters.valid_pcts, num):
+            gradients.append(g)
+        
+        gradients = np.array(gradients)
+        
+        a = np.ones((len(gradients), 1), dtype=int) * parameters.pct_range[0]
+        c = np.ones((len(gradients), 1), dtype=int) * parameters.pct_range[1]
+        
+        if parameters.fix_time2_pct:
+            b = np.ones((len(gradients), 1), dtype=int) * parameters.pct_range[0]
+            self.gradient_arrs = np.concatenate((a, b, gradients, c), axis=1)
+            self.start_pos = 2
+        else:
+            self.gradient_arrs = np.concatenate((a, gradients, c), axis=1)
+            self.start_pos = 1
+        
+        ratios = cal_mobile_phase_ratio(parameters.time_arr, self.gradient_arrs)
+        v = (ratios > parameters.total_mobile_phase_ratio_range[0]) & (ratios < parameters.total_mobile_phase_ratio_range[1])
+
+        self.gradient_arrs = self.gradient_arrs[v]
+
+        self.total_ratios = ratios[v]
 
         # Scale the search space
         self.scaler = StandardScaler()
-        self.scaledX = self.scaler.fit_transform(self.gridX)
+        self.scaledX = self.scaler.fit_transform(self.gradient_arrs[:, self.start_pos:-1])
 
 
-    def computeNextGradient(self, acqFunc="ei"):
+    def compute_next_gradient(self, acq="ei"):
         """
         Function to calculate the next gradient to run using an
         acquisition function.
 
         Parameters
         ----------------------------------------------------------
-        acqFunc: str
+        acq: str
             Acquisition functions in lower case.
             "ei": expected improvement
             "explore": pure exploration
@@ -118,266 +118,224 @@ class gpModel:
             next gradient to run
         """
 
-        maxObserved = np.amax(self.trainy)
-        idx = -1
-        if acqFunc.lower() == "ei":
-            idx = expectedImprovement(self.gpr, self.scaledX, maxObserved)
-        elif acqFunc.lower() == "explore":
-            idx = explore(self.gpr, self.scaledX)
-        elif acqFunc.lower() == "rand":
-            idx = randX(self.gridX, self.trainX)
-        elif acqFunc.lower() == "eps":
-            idx = epsilonGreedy(self.gpr, self.gridX, self.scaledX, self.trainX)
-        elif acqFunc.lower() == "exploit":
-            idx = exploit(self.gpr, self.gridX, self.scaledX, self.trainX)
-        elif acqFunc.lower() == "pi":
-            idx = probabilityOfImprovement(self.gpr, self.scaledX, maxObserved)
-        elif acqFunc.lower() == "ucb":
-            idx = ucb(self.gpr, self.scaledX, len(self.trainX))
-        if idx != -1:
-            return self.gridX[idx]
-    
+        best_y = np.max(self.trainy)
+        idx = None
 
-    def updateModel(self, exp, parameters):
+        if acq.lower() == "ei":
+            idx = expected_improvement(model=self, best_y=best_y)
+        elif acq.lower() == "pi":
+            idx = probability_of_improvement(model=self, best_y=best_y)
+        elif acq.lower() == "eps":
+            idx = epsilon_greedy(model=self)
+        elif acq.lower() == "exploit":
+            idx = exploit(model=self)
+        elif acq.lower() == "explore":
+            idx = explore(model=self)
+        elif acq.lower() == "rand":
+            idx = random_gradient(model=self)
+
+        return self.gradient_arrs[idx]
+
+
+    def update_model(self, parameters):
         """
         Function to update the model by training the model with
         the new data.
 
         Parameters
         ----------------------------------------------------------
-        exp: dict
-            Dictionary of the experiment.
-        parameters: dict
-            Global parameters.
+        parameters: Parameters object
+            Get the new data from paarameters.experiments. 
         """
 
-        X = np.array(list(parameters['grads'].values()))
-        X = X[:,parameters['isChangable']]
-        temp = parameters['grads'].keys()
-        y = np.array([exp[n].sepEff for n in temp])
-        self.fit(X, y)
+        self.trainX = np.array([e.pct_arr for e in parameters.experiments])
+        self.trainy = np.array([e.good_feat_num for e in parameters.experiments])
+        self.transform_and_fit()
 
 
-def expectedImprovement(model, X, maxObserved, jitter=0.01):
+"""
+============================================================================================
+Acquisition functions
+============================================================================================
+"""
+
+def expected_improvement(model: gpModel, best_y: float, jitter: float = 0.01):
     """
     Compute expected improvement.
-    
-    EI attempts to balance exploration and exploitation by accounting
-    for the amount of improvement over the best observed value.
 
     Parameters
-    ----------------------------------------------------------
-    model: sklearn.gaussian_process._gpr.GaussianProcessRegressor
-        Trained model.
-    X: numpy.ndarray
-        Search space.
-    maxObserved: float
+    ----------
+    model: gpModel
+        Gaussian process regression model.
+    best_y: float
         Maximal y observed.
     jitter : float
         Parameter which controls the degree of exploration.
 
     Returns
-    ----------------------------------------------------------
+    -------
     idx: int
         Index of the selected gradient.
     """
 
-    mean, stdev = model.predict(X, return_std=True)
+    mean, stdev = model.gpr.predict(model.scaledX, return_std=True)
     stdev = stdev + 1e-6
 
     # EI parameter values
-    z = (mean - maxObserved - jitter) / stdev
-    imp = mean - maxObserved - jitter
+    z = (mean - best_y - jitter) / stdev
+    imp = mean - best_y - jitter
     ei = imp * norm.cdf(z) + stdev * norm.pdf(z)
 
     return np.argmax(ei)
 
 
-def probabilityOfImprovement(model, X, maxObserved, jitter=0.01):
+def probability_of_improvement(model: gpModel, best_y: float, jitter: float = 0.01):
     """
-    Compute expected improvement.
-    
-    EI attempts to balance exploration and exploitation by accounting
-    for the amount of improvement over the best observed value.
+    Compute probability of improvement.
 
     Parameters
-    ----------------------------------------------------------
-    model: sklearn.gaussian_process._gpr.GaussianProcessRegressor
-        Trained model.
-    X: numpy.ndarray
-        Search space.
-    maxObserved: float
+    ----------
+    model: gpModel
+        Gaussian process regression model.
+    best_y: float
         Maximal y observed.
     jitter : float
         Parameter which controls the degree of exploration.
 
     Returns
-    ----------------------------------------------------------
+    -------
     idx: int
         Index of the selected gradient.
     """
 
     # Mean and standard deviation
-    mean, stdev = model.predict(X, return_std=True)
+    mean, stdev = model.gpr.predict(model.scaledX, return_std=True)
 
     # PI parameter values
-    z = (mean - maxObserved - jitter) / stdev
+    z = (mean - best_y - jitter) / stdev
     cdf = norm.cdf(z)
 
     return np.argmax(cdf)
 
 
-def explore(model, X):
+def epsilon_greedy(model: gpModel, eps: float = 0.1, state: int = 419):
     """
-    Find the gradient with the largest variance
+    Epsilon greedy algorithm.
 
     Parameters
-    ----------------------------------------------------------
-    model: sklearn.gaussian_process._gpr.GaussianProcessRegressor
-        Trained model.
-    X: numpy.ndarray
-        Search space.
+    ----------
+    model: gpModel
+        Gaussian process regression model.
+    eps: float
+        Probability of exploration.
 
     Returns
-    ----------------------------------------------------------
+    -------
     idx: int
         Index of the selected gradient.
     """
 
-    _, stdev = model.predict(X, return_std=True)
+    np.random.seed(state)
+    
+    p = np.random.random()
+    if p < eps:
+        return random_gradient(model)
+    else:
+        return exploit(model)
+
+
+def exploit(model: gpModel):
+    """
+    Pure exploitation.
+    
+    Parameters
+    ----------
+    model: gpModel
+        Gaussian process regression model.
+
+    Returns
+    -------
+    idx: int
+        Index of the selected gradient.
+    """
+
+    mean = model.gpr.predict(model.scaledX)
+    idx = np.argmax(mean)
+    # make sure the max is not the one that has been already tested
+    a = model.gradient_arrs[idx]
+    b = model.trainX
+    while np.sum(np.all(b == a, axis=1) > 0) > 0:
+        idx = idx + 1
+        a = model.gradient_arrs[idx]
+    
+    return idx
+
+
+def explore(model: gpModel):
+    """
+    Pure exploration.
+
+    Parameters
+    ----------
+    model: gpModel
+        Gaussian process regression model.
+
+    Returns
+    -------
+    idx: int
+        Index of the selected gradient.
+    """
+
+    _, stdev = model.gpr.predict(model.scaledX, return_std=True)
 
     return np.argmax(stdev)
 
 
-def randX(gridX, trainX):
+def random_gradient(model: gpModel, state: int = 419):
     """
     Randomly select gradient.
 
     Parameters
-    ----------------------------------------------------------
-    gridX: numpy.ndarray
-        gridX.
-    trainX: numpy.ndarray
-        Training data
+    ----------
+    model: gpModel
+        Gaussian process regression model.
+    state: int
+        Random state.
 
     Returns
-    ----------------------------------------------------------
+    -------
     idx: int
         Index of the selected gradient.
     """
 
-    idx = np.random.randint(len(gridX))
-    while checkDuplicates(gridX[idx], trainX):
-        idx = np.random.randint(len(gridX))
-    return idx
+    np.random.seed(state)
+
+    return np.random.randint(len(model.gradient_arrs))
 
 
-def epsilonGreedy(model, gridX, scaledX, trainX, eps=0.05):
+def compute_the_second_gradient(parameters, model, ratio_diff=0.1):
     """
-    Acquisition function by epsilon-greedy algorithm.
-    
+    Calculate the second gradient to run.
+
     Parameters
-    ----------------------------------------------------------
-    model: sklearn.gaussian_process._gpr.GaussianProcessRegressor
-        Trained model.
-    gridX: numpy.ndarray
-        gridX.
-    scaledX: numpy.ndarray
-        scaledX.
-    trainX: numpy.ndarray
-        Training data
-    eps: float
-        Probability for random exploration.
-
-    Returns
-    ----------------------------------------------------------
-    idx: int
-        Index of the selected gradient.
+    ----------
+    parameters: Parameters object
+        Parameters.
+    model: gpModel
+        Gaussian process regression model.
+    fac: float
+        Factor to calculate the second gradient.
     """
 
-    p = np.random.random()
-    if p < eps:
-        return randX(gridX, trainX)
+    if len(parameters.experiments) < 1:
+        raise ValueError("The second gradient can only be calculated when the first gradient is provided.")
+    elif len(parameters.experiments) > 1:
+        raise ValueError("The second gradient has been provided and threfore no need to generate again.")
     else:
-        return exploit(model, gridX, scaledX, trainX)
-
-
-def exploit(model, gridX, scaledX, trainX):
-    """
-    Acquisition function by epsilon-greedy algorithm.
+        ratio1 = parameters.experiments[0].total_mobile_phase_ratio
     
-    Parameters
-    ----------------------------------------------------------
-    model: sklearn.gaussian_process._gpr.GaussianProcessRegressor
-        Trained model.
-    gridX: numpy.ndarray
-        gridX.
-    scaledX: numpy.ndarray
-        scaledX.
-    trainX: numpy.ndarray
-        Training data.
+    for idx in range(len(model.total_ratios)):
+        if abs(ratio1 - model.total_ratios[idx]) > ratio_diff:
+            break
 
-    Returns
-    ----------------------------------------------------------
-    idx: int
-        Index of the selected gradient.
-    """
-
-    mean = model.predict(scaledX)
-    counter = 0
-    t = (-mean).argsort()[counter]
-    while checkDuplicates(gridX[t], trainX):
-        counter += 1
-        t = (-mean).argsort()[counter]
-
-    return t
-
-
-def ucb(model, X, iters):
-    """
-    Acquisition function by upper confidence bound algorithm.
-    
-    Parameters
-    ----------------------------------------------------------
-    model: sklearn.gaussian_process._gpr.GaussianProcessRegressor
-        Trained model.
-    X: numpy.ndarray
-        Search space.
-    iters: int
-        Iteration number.
-
-    Returns
-    ----------------------------------------------------------
-    idx: int
-        Index of the selected gradient.
-    """
-
-    # Mean and standard deviation
-    mean, stdev = model.predict(X, return_std=True)
-
-    d = len(X[0])
-    coeff = np.sqrt(2*np.log(iters**(d/2+2) * pi**2/3))
-    ucb = mean + coeff * stdev
-
-    return np.argmax(ucb)
-
-
-def checkDuplicates(arr, X):
-    """
-    A function to check if a numpy array is in a 2D numpy array.
-    
-    Parameters
-    ----------------------------------------------------------
-    arr: numpy array
-    X: numpy.ndarray
-
-    Returns
-    ----------------------------------------------------------
-    boolean
-        True for in.
-    """
-    for i in X:
-        if np.array_equal(i, arr):
-            return True
-
-    return False
+    return model.gradient_arrs[idx]

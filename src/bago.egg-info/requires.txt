@@ -2,3 +2,4 @@ numpy>=1.19.5
 pandas>=1.2.4
 scikit-learn>=1.0.2
 scipy>=1.7.1
+masscube>=1.2.5
